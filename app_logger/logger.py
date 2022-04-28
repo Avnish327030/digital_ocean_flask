@@ -1,0 +1,34 @@
+
+import logging
+import os
+from datetime import datetime
+
+
+CURRENT_TIME_STAMP=f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
+FILE_NAME=f"log_{CURRENT_TIME_STAMP}.log"
+LOG_DIR="logs"
+os.makedirs(LOG_DIR,exist_ok=True)
+LOG_FILE_PATH=os.path.join(LOG_DIR,FILE_NAME)
+logging.basicConfig(filename=LOG_FILE_PATH, 
+                            filemode='w', 
+                            format='[%(asctime)s] %(name)s - %(levelname)s - %(message)s',
+                            level=logging.DEBUG)
+
+
+
+def log_function_signature(func):
+    def inner(*args, **kwargs):
+        kw_args_text=""
+        for param_name,param_value in kwargs.items():
+             kw_args_text=f"{kw_args_text},{param_name}= {param_value}"
+        arg_text=list(args)
+        arg_text=",".join(map(str,arg_text))
+        logging.info(f"Entering {func.__name__}({arg_text}{kw_args_text})")
+        response = func(*args, **kwargs)
+        logging.info(f"Exiting {func.__name__}({arg_text}{kw_args_text})")
+        return response
+    return inner
+
+        
+
+    

@@ -7,3 +7,9 @@ Open a file named gunicorn_config.py:
 ```
 touch gunicorn_config.py
 ```
+
+
+Enter the following command in Run Command
+```
+gunicorn --worker-tmp-dir /dev/shm app:app
+```

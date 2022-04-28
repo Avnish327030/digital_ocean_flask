@@ -1,0 +1,15 @@
+
+
+data_set:
+  name: imdb_reviews
+
+preprocessing:
+  vocab_size: 1000
+
+
+train_config: 
+  buffer_size: 10000
+  batch_size: 64
+  
+  
+
