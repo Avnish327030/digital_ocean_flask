@@ -18,6 +18,7 @@ train_config:
   epoch: 10
   tensorboard_log_dir: tensor_board_log_dir
   base_accuracy: 0.6
+  validation_step: 30
 
 
 

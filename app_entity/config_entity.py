@@ -1,6 +1,16 @@
 # configuration entity
 from collections import namedtuple
 
-DatasetConfig = namedtuple("DatasetConfig", ["name", "schema", "buffer_size","batch_size"])
+DatasetConfig = namedtuple("DatasetConfig", ["name", "schema", "buffer_size", "batch_size"])
 PreprocessingConfig = namedtuple("PreprocessingConfig", ["vocal_size"])
-TrainingPipelineConfig = namedtuple("TrainingPipelineConfig",["artifact_dir"])
+
+ModelTrainingConfig = namedtuple("TrainingConfig", ["model_save_dir",
+                                                    "model_checkpoint_dir",
+                                                    "model_root_dir",
+                                                    "epoch",
+                                                    "tensorboard_log_dir",
+                                                    "base_accuracy",
+                                                    "validation_step",
+                                                    ])
+
+TrainingPipelineConfig = namedtuple("TrainingPipelineConfig", ["artifact_dir"])

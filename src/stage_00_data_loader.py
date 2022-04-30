@@ -68,6 +68,7 @@ class DataLoader:
         except Exception as e:
             self.data_ingestion.message = f"{self.data_ingestion.message}\n{e}"
             self.data_ingestion.status = False
+            logging.info(self.data_ingestion.message)
             raise AppException(e, sys) from e
 
     def __repr__(self):

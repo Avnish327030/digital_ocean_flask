@@ -1,6 +1,6 @@
 from collections import namedtuple
 from app_entity.config_entity import DatasetConfig
-from app_entity.config_entity import PreprocessingConfig
+from app_entity.config_entity import PreprocessingConfig, ModelTrainingConfig
 
 ExperimentEntity = namedtuple("ExperimentEntity", [
     "experiment_id",
@@ -36,26 +36,64 @@ class DataPreprocessingEntity:
         self.message = ""
 
 
+class BestModelEntity:
+
+    def __init__(self, ):
+        self.best_model = None
+        self.model_path = None
+        self.is_best_model_exist = None
+        self.status = None
+        self.message = ""
+
+
+class MetricInfoEntity:
+    def __init__(self):
+        pass
+
+
+class TrainedModelEntity:
+    def __init__(self, experiment_id, model_training_config: ModelTrainingConfig):
+        self.experiment_id = experiment_id
+        self.model_training_config = model_training_config
+        self.model_architecture = None
+        self.model = None
+        self.status = None
+        self.message = ""
+        self.is_model_compiled = False
+        self.metric_info = MetricInfoEntity()
+        self.history = None
+
+
 DataValidationEntity = namedtuple("DataValidationEntity", ["experiment_id", "name"])
 
-BestModelEntity = namedtuple(
-    "BestModelEntity", ["experiment_id", "model", "metrics", "model_path", "is_present"])
 
-TrainedModelEntity = namedtuple("TrainedModelEntity", [
-    "experiment_id", "model_architecture", "model", "metrics", "model_path", "is_present"
-])
+class ModelEvaluationEntity:
+    def __init__(self, experiment_id, trained_model: TrainedModelEntity, best_model: BestModelEntity):
+        self.experiment_id = experiment_id
+        self.trained_model = TrainedModelEntity
+        self.best_model = best_model
+        self.is_trained_model_accepted = False
+        self.status = None
+        self.message = ""
 
-EvaluationStatusEntity = namedtuple("EvaluationStatusEntity", [
-    "experiment_id",
-    "best_model",
-    "is_updated",
-    "metrics",
-    "is_accepted",
-    "evaluated_timestamp"])
 
-ModelDeploymentEntity = namedtuple("ModelDeploymentEntity", ["experiment_id",
-                                                             "deployment_id", "deployment_name",
-                                                             "deployment_description",
-                                                             "deployment_start_time_stamp",
-                                                             "deployment_stop_time_stamp",
-                                                             "deployment_status", "deployment_artifacts_dir"])
+class ExportModelEntity:
+    def __init__(self, experiment_id, accepted_model: TrainedModelEntity, export_dir: str):
+        self.experiment_id = experiment_id
+        self.accepted_model = accepted_model
+        self.export_dir = export_dir
+        self.status = None
+        self.message = ""
+
+
+class TrainingPipelineEntity:
+    def __init__(self,
+                 data_ingestion: DataIngestionEntity = None,
+                 data_preprocessing: DataValidationEntity = None,
+                 model_trainer: TrainedModelEntity = None,
+                 ):
+        self.model_trainer = model_trainer
+        self.status = None
+        self.message = ""
+        self.data_ingestion = data_ingestion
+        self.data_preprocessing = data_preprocessing
