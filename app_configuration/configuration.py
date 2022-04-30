@@ -20,6 +20,8 @@ SCHEMA_FILE_PATH = os.path.join(ROOT_DIR, SCHEMA_FILE_NAME)
 DATA_SET_KEY = "data_set"
 DATA_SET_NAME_KEY = "name"
 SCHEMA_KEY = "schema"
+BUFFER_SIZE_KEY = "buffer_size"
+BATCH_SIZE_KEY = "batch_size"
 
 
 # preprocessing keys
@@ -31,6 +33,11 @@ VOCAB_SIZE_KEY = "vocab_size"
 TRAINING_KEY = "train_config"
 BUFFER_SIZE_KEY = "buffer_size"
 BATCH_SIZE_KEY = "batch_size"
+
+
+#Training pipeline config
+TRAINING_PIPELINE_KEY = "training_pipeline_config"
+ARTIFACT_DIR_KEY = "artifact_dir"
 
 
 class AppConfiguration:
@@ -56,6 +63,8 @@ class AppConfiguration:
             self.logger.info(f"Dataset configuration :\n{dataset_config}\n read successfully.")
             response = DatasetConfig(name=dataset_config[DATA_SET_NAME_KEY],
                                      schema=self.dataset_schema[SCHEMA_KEY],
+                                     batch_size=dataset_config[BATCH_SIZE_KEY],
+                                     buffer_size=dataset_config[BUFFER_SIZE_KEY]
                                      )
             return response
         except Exception as e:

@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-ExperimentEntity = namedtuple("Experiment", [
+ExperimentEntity = namedtuple("ExperimentEntity", [
     "experiment_id",
     "experiment_name",
     "experiment_description",
@@ -13,16 +13,17 @@ ExperimentEntity = namedtuple("Experiment", [
     "artifacts_dir",
 ])
 
-DataIngestionEntity = namedtuple("DataIngestion", ["experiment_id", "train", "test"])
-DataValidationEntity = namedtuple("DataValidation", ["experiment_id", "name"])
+DataIngestionEntity = namedtuple("DataIngestionEntity", ["experiment_id", "train", "test"])
+DataValidationEntity = namedtuple("DataValidationEntity", ["experiment_id", "name"])
+DataPreprocessingEntity = namedtuple("DataPreprocessingEntity", ["experiment_id", "encoder"])
 BestModelEntity = namedtuple(
-    "BestModel", ["experiment_id", "model", "metrics", "model_path", "is_present"])
+    "BestModelEntity", ["experiment_id", "model", "metrics", "model_path", "is_present"])
 
-TrainedModelEntity = namedtuple("TrainedModel", [
-    "experiment_id", "model", "metrics", "model_path", "is_present"
+TrainedModelEntity = namedtuple("TrainedModelEntity", [
+    "experiment_id", "model_architecture", "model", "metrics", "model_path", "is_present"
 ])
 
-EvaluationStatusEntity = namedtuple("EvaluationStatus", [
+EvaluationStatusEntity = namedtuple("EvaluationStatusEntity", [
     "experiment_id",
     "best_model",
     "is_updated",
@@ -30,7 +31,9 @@ EvaluationStatusEntity = namedtuple("EvaluationStatus", [
     "is_accepted",
     "evaluated_timestamp"])
 
-ModelDeploymentEntity = namedtuple("ModelDeployment", ["experiment_id",
-                                                       "deployment_id", "deployment_name", "deployment_description",
-                                                       "deployment_start_time_stamp", "deployment_stop_time_stamp",
-                                                       "deployment_status", "deployment_artifacts_dir"])
+ModelDeploymentEntity = namedtuple("ModelDeploymentEntity", ["experiment_id",
+                                                             "deployment_id", "deployment_name",
+                                                             "deployment_description",
+                                                             "deployment_start_time_stamp",
+                                                             "deployment_stop_time_stamp",
+                                                             "deployment_status", "deployment_artifacts_dir"])

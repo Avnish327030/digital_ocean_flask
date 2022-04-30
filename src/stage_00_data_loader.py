@@ -1,7 +1,7 @@
 from app_exception.exception import AppException
 from app_configuration.configuration import AppConfiguration
 from app_logger.logger import logging, log_function_signature
-from app_entity.entity import Dataset
+from app_entity.entity import DataIngestionEntity,ExperimentEntity
 import os, sys
 import tensorflow_datasets as tfds
 from collections import namedtuple
@@ -16,8 +16,9 @@ INT_DATA_TYPE = "int"
 class DataLoader:
 
     @log_function_signature
-    def __init__(self):
+    def __init__(self,experiment:ExperimentEntity):
         try:
+            self.experiment=experiment
             self.logger = logging
             self.logger.info("Reading the dataset configuration.")
             self.data_set_config = AppConfiguration().get_dataset_configuration()
@@ -30,7 +31,7 @@ class DataLoader:
             raise AppException(e, sys) from e
 
     @log_function_signature
-    def get_dataset(self) -> Dataset:
+    def get_dataset(self) -> DataIngestionEntity:
         try:
             self.logger.info("Reading the dataset")
             print(self.data_set_config)
@@ -39,7 +40,9 @@ class DataLoader:
 
             self.train_dataset, self.test_dataset = dataset[TRAIN_KEY], dataset[TEST_KEY]
             self.logger.info("Dataset read successfully")
-            return Dataset(self.train_dataset, self.test_dataset, self.dataset_info)
+            return DataIngestionEntity(experiment_id=self.experiment.experiment_id,
+                                       train=self.train_dataset,
+                                       test =self.test_dataset,)
         except Exception as e:
             raise AppException(e, sys) from e
 
@@ -49,12 +52,9 @@ class DataLoader:
             self.train_dataset = self.train_dataset.shuffle(buffer_size).batch(batch_size).prefetch(tf.data.AUTOTUNE)
             self.test_dataset = self.test_dataset.batch(batch_size).prefetch(tf.data.AUTOTUNE)
             self.logger.info("Dataset shuffled and batched successfully")
-            return Dataset(train=self.train_dataset,
-                           test=self.test_dataset,
-                           dataset_info=self.dataset_info,
-                           schema=self.schema
-
-                           )
+            return DataIngestionEntity(experiment_id=self.experiment.experiment_id,
+                                       train=self.train_dataset,
+                                       test=self.test_dataset, )
         except Exception as e:
             raise AppException(e, sys) from e
 
