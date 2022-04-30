@@ -11,7 +11,14 @@ preprocessing:
   vocab_size: 1000
 
 
-train_config: 
+train_config:
+  model_root_dir: model
+  model_save_dir: trained_model/saved_model
+  model_checkpoint_dir: checkpoint_dir
+  epoch: 10
+  tensorboard_log_dir: tensor_board_log_dir
+  base_accuracy: 0.6
+
 
 
 

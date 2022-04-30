@@ -1,7 +1,7 @@
 from app_exception.exception import AppException
 from app_configuration.configuration import AppConfiguration
 from app_logger.logger import logging, log_function_signature
-from app_entity.entity import DataIngestionEntity,ExperimentEntity
+from app_entity.entity import DataIngestionEntity, ExperimentEntity
 import os, sys
 import tensorflow_datasets as tfds
 from collections import namedtuple
@@ -9,53 +9,65 @@ import tensorflow as tf
 
 TRAIN_KEY = "train"
 TEST_KEY = "test"
-STRING_DATA_TYPE = "string"
-INT_DATA_TYPE = "int"
 
 
 class DataLoader:
 
     @log_function_signature
-    def __init__(self,experiment:ExperimentEntity):
+    def __init__(self, experiment: ExperimentEntity, app_config: AppConfiguration):
         try:
-            self.experiment=experiment
-            self.logger = logging
-            self.logger.info("Reading the dataset configuration.")
-            self.data_set_config = AppConfiguration().get_dataset_configuration()
-            self.logger.info(f"Dataset configuration :\n{self.data_set_config}\n read successfully")
-            self.train_dataset = None
-            self.test_dataset = None
-            self.dataset_info = None
-            self.schema = self.data_set_config.schema
+            logging.info("Reading the dataset configuration.")
+            data_set_config = app_config.get_dataset_configuration()
+            logging.info(f"Dataset configuration :\n{data_set_config}\n read successfully")
+            self.data_ingestion = DataIngestionEntity(experiment_id=experiment.experiment_id,
+                                                      train=None,
+                                                      test=None,
+                                                      dataset_config=data_set_config
+                                                      )
+            self.data_ingestion.status = True
+            self.data_ingestion.message = "Data Ingestion is initialized."
         except Exception as e:
+            self.data_ingestion.message = f"{self.data_ingestion.message}\n{e}"
+            self.data_ingestion.status = False
             raise AppException(e, sys) from e
 
     @log_function_signature
     def get_dataset(self) -> DataIngestionEntity:
         try:
-            self.logger.info("Reading the dataset")
-            print(self.data_set_config)
-            dataset, self.dataset_info = tfds.load(self.data_set_config.name, with_info=True,
-                                                   as_supervised=True)
+            logging.info("Reading the dataset")
 
-            self.train_dataset, self.test_dataset = dataset[TRAIN_KEY], dataset[TEST_KEY]
-            self.logger.info("Dataset read successfully")
-            return DataIngestionEntity(experiment_id=self.experiment.experiment_id,
-                                       train=self.train_dataset,
-                                       test =self.test_dataset,)
+            dataset, dataset_info = tfds.load(self.data_ingestion.dataset_config.name, with_info=True,
+                                              as_supervised=True)
+
+            train_dataset, test_dataset = dataset[TRAIN_KEY], dataset[TEST_KEY]
+            logging.info("Dataset read successfully")
+            self.data_ingestion.train = train_dataset
+            self.data_ingestion.test = test_dataset
+            self.data_ingestion.message = f"{self.data_ingestion.message}\nData has been loaded from tensorflow " \
+                                          f"dataset library {dataset_info} "
+            self.data_ingestion.status = True
+            return self.data_ingestion
         except Exception as e:
+            self.data_ingestion.message = f"{self.data_ingestion.message}\n{e}"
+            self.data_ingestion.status = False
             raise AppException(e, sys) from e
 
     @log_function_signature
-    def get_batch_suffle_datset(self, buffer_size, batch_size):
+    def get_batch_shuffle_dataset(self):
         try:
-            self.train_dataset = self.train_dataset.shuffle(buffer_size).batch(batch_size).prefetch(tf.data.AUTOTUNE)
-            self.test_dataset = self.test_dataset.batch(batch_size).prefetch(tf.data.AUTOTUNE)
-            self.logger.info("Dataset shuffled and batched successfully")
-            return DataIngestionEntity(experiment_id=self.experiment.experiment_id,
-                                       train=self.train_dataset,
-                                       test=self.test_dataset, )
+            buffer_size = self.data_ingestion.dataset_config.buffer_size
+            batch_size = self.data_ingestion.dataset_config.batch_size
+            self.data_ingestion.train = self.data_ingestion.train.shuffle(buffer_size).batch(batch_size).prefetch(
+                tf.data.AUTOTUNE)
+            self.data_ingestion.test = self.data_ingestion.test.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+            logging.info("Dataset shuffled and batched successfully")
+            self.data_ingestion.message = f"{self.data_ingestion.message}\nData shuffling compeleted with " \
+                                          f"batch_size:{batch_size} and buffer_size:{buffer_size}"
+            self.data_ingestion.status = True
+            return self.data_ingestion
         except Exception as e:
+            self.data_ingestion.message = f"{self.data_ingestion.message}\n{e}"
+            self.data_ingestion.status = False
             raise AppException(e, sys) from e
 
     def __repr__(self):

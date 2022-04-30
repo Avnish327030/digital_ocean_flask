@@ -1,8 +1,11 @@
 from collections import namedtuple
+from app_entity.config_entity import DatasetConfig
+from app_entity.config_entity import PreprocessingConfig
 
 ExperimentEntity = namedtuple("ExperimentEntity", [
     "experiment_id",
     "experiment_name",
+    "config_info",
     "experiment_description",
     "execution_start_time_stamp",
     "executed_by_user",
@@ -13,9 +16,28 @@ ExperimentEntity = namedtuple("ExperimentEntity", [
     "artifacts_dir",
 ])
 
-DataIngestionEntity = namedtuple("DataIngestionEntity", ["experiment_id", "train", "test"])
+
+class DataIngestionEntity:
+    def __init__(self, experiment_id, train, test, dataset_config: DatasetConfig):
+        self.experiment_id = experiment_id,
+        self.train = train
+        self.test = test
+        self.dataset_config = dataset_config
+        self.status = None
+        self.message = ""
+
+
+class DataPreprocessingEntity:
+    def __init__(self, experiment_id, preprocessing_config: PreprocessingConfig):
+        self.experiment_id = experiment_id,
+        self.encoder = None
+        self.preprocessing_config = PreprocessingConfig
+        self.status = None
+        self.message = ""
+
+
 DataValidationEntity = namedtuple("DataValidationEntity", ["experiment_id", "name"])
-DataPreprocessingEntity = namedtuple("DataPreprocessingEntity", ["experiment_id", "encoder"])
+
 BestModelEntity = namedtuple(
     "BestModelEntity", ["experiment_id", "model", "metrics", "model_path", "is_present"])
 

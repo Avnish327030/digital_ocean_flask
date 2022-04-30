@@ -5,7 +5,7 @@ from app_exception.exception import AppException
 from app_utils.util import read_yaml_file
 from collections import namedtuple
 from app_logger import logging, log_function_signature
-from app_entity.config_entity import DatasetConfig, PreprocessingConfig
+from app_entity.config_entity import DatasetConfig, PreprocessingConfig,TrainingPipelineConfig
 
 # Initializing the default values for app configuration
 
@@ -31,8 +31,7 @@ VOCAB_SIZE_KEY = "vocab_size"
 
 # training configuration keys
 TRAINING_KEY = "train_config"
-BUFFER_SIZE_KEY = "buffer_size"
-BATCH_SIZE_KEY = "batch_size"
+
 
 
 #Training pipeline config
@@ -75,10 +74,19 @@ class AppConfiguration:
         try:
             preprocessing_config = self.config_info[PREPROCESSING_KEY]
             self.logger.info(f"Preprocessing configuration :\n{preprocessing_config}\n read successfully.")
-            response = PreprocessingConfig(vocal_size=preprocessing_config[VOCAB_SIZE_KEY])
-            return response
+            return PreprocessingConfig(vocal_size=preprocessing_config[VOCAB_SIZE_KEY])
+
         except Exception as e:
             raise AppException(e, sys) from e
+
+    @log_function_signature
+    def get_training_pipeline_config(self) -> TrainingPipelineConfig:
+        try:
+            training_pipeline_config = self.config_info[TRAINING_PIPELINE_KEY]
+            self.logger.info(f"Preprocessing configuration :\n{training_pipeline_config}\n read successfully.")
+            return TrainingPipelineConfig(artifact_dir=training_pipeline_config[ARTIFACT_DIR_KEY])
+        except Exception as e:
+            raise AppException(e,sys) from e
 
     def __repr__(self) -> str:
         return f"AppConfiguration()"
