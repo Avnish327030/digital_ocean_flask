@@ -11,6 +11,17 @@ ModelTrainingConfig = namedtuple("TrainingConfig", ["model_save_dir",
                                                     "tensorboard_log_dir",
                                                     "base_accuracy",
                                                     "validation_step",
+
                                                     ])
 
-TrainingPipelineConfig = namedtuple("TrainingPipelineConfig", ["artifact_dir"])
+TrainingPipelineConfig = namedtuple("TrainingPipelineConfig", ["artifact_dir",
+                                                               "training_pipeline_obj_dir",
+                                                               "training_pipeline_obj_file_name",
+                                                               "training_pipeline_obj_file_path",
+                                                               "execution_report_dir",
+                                                               "execution_report_file_name",
+                                                               "execution_report_file_path"
+                                                               ])
+
+
+

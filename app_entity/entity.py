@@ -1,20 +1,36 @@
 from collections import namedtuple
 from app_entity.config_entity import DatasetConfig
-from app_entity.config_entity import PreprocessingConfig, ModelTrainingConfig
+from app_entity.config_entity import PreprocessingConfig, ModelTrainingConfig, TrainingPipelineConfig
 
-ExperimentEntity = namedtuple("ExperimentEntity", [
-    "experiment_id",
-    "experiment_name",
-    "config_info",
-    "experiment_description",
-    "execution_start_time_stamp",
-    "executed_by_user",
-    "executed_by_email",
-    "execution_stop_time_stamp",
-    "execution_status",
-    "execution_description",
-    "artifacts_dir",
-])
+from datetime import datetime
+
+
+class ExperimentEntity:
+
+    def __init__(self,
+                 experiment_id=None,
+                 experiment_name=None,
+                 config_info=None,
+                 experiment_description=None,
+                 execution_start_time_stamp: datetime = None,
+                 executed_by_user=None,
+                 executed_by_email=None,
+                 execution_stop_time_stamp: datetime = None,
+                 execution_status=None,
+                 execution_description=None,
+                 artifacts_dir=None,
+                 ):
+        self.experiment_id = experiment_id
+        self.experiment_name = experiment_name
+        self.config_info = config_info
+        self.experiment_description = experiment_description
+        self.execution_start_time_stamp = execution_start_time_stamp
+        self.executed_by_user = executed_by_user
+        self.executed_by_email = executed_by_email
+        self.execution_stop_time_stamp = execution_stop_time_stamp
+        self.execution_status = execution_status
+        self.execution_description = execution_description
+        self.artifacts_dir = artifacts_dir
 
 
 class DataIngestionEntity:
@@ -25,13 +41,14 @@ class DataIngestionEntity:
         self.dataset_config = dataset_config
         self.status = None
         self.message = ""
+        self.is_dataset_present = None
 
 
 class DataPreprocessingEntity:
     def __init__(self, experiment_id, preprocessing_config: PreprocessingConfig):
         self.experiment_id = experiment_id,
         self.encoder = None
-        self.preprocessing_config = PreprocessingConfig
+        self.preprocessing_config = preprocessing_config
         self.status = None
         self.message = ""
 
@@ -47,8 +64,17 @@ class BestModelEntity:
 
 
 class MetricInfoEntity:
-    def __init__(self):
-        pass
+
+    def __init__(self,
+                 train_accuracy: float = None,
+                 train_loss: float = None,
+                 test_accuracy: float = None,
+                 test_loss: float = None
+                 ):
+        self.train_accuracy = train_accuracy
+        self.train_loss = train_loss
+        self.test_accuracy = test_accuracy
+        self.test_loss = test_loss
 
 
 class TrainedModelEntity:
@@ -59,7 +85,8 @@ class TrainedModelEntity:
         self.model = None
         self.status = None
         self.message = ""
-        self.is_model_compiled = False
+        self.is_trained_model_loaded = False
+        self.is_checkpoint_model_loaded = False
         self.metric_info = MetricInfoEntity()
         self.history = None
 
@@ -70,7 +97,7 @@ DataValidationEntity = namedtuple("DataValidationEntity", ["experiment_id", "nam
 class ModelEvaluationEntity:
     def __init__(self, experiment_id, trained_model: TrainedModelEntity, best_model: BestModelEntity):
         self.experiment_id = experiment_id
-        self.trained_model = TrainedModelEntity
+        self.trained_model = trained_model
         self.best_model = best_model
         self.is_trained_model_accepted = False
         self.status = None
@@ -89,11 +116,13 @@ class ExportModelEntity:
 class TrainingPipelineEntity:
     def __init__(self,
                  data_ingestion: DataIngestionEntity = None,
-                 data_preprocessing: DataValidationEntity = None,
+                 data_preprocessing: DataPreprocessingEntity = None,
                  model_trainer: TrainedModelEntity = None,
+                 training_pipeline_config: TrainingPipelineConfig = None
                  ):
         self.model_trainer = model_trainer
         self.status = None
         self.message = ""
+        self.training_pipeline_config = training_pipeline_config
         self.data_ingestion = data_ingestion
         self.data_preprocessing = data_preprocessing

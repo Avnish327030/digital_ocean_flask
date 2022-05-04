@@ -33,7 +33,10 @@ class DataPreprocessing:
         try:
             encoder = tf.keras.layers.TextVectorization(
                 max_tokens=self.data_preprocessing.preprocessing_config.vocal_size)
+
+            encoder.adapt(self.data_ingestion.train.map(lambda text, label: text))
             self.data_preprocessing.encoder = encoder
+
             self.data_preprocessing.status = True
             self.data_preprocessing.message = f"{self.data_preprocessing.message}\nEncoder object has been initialized."
             return self.data_preprocessing

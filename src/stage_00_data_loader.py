@@ -45,6 +45,7 @@ class DataLoader:
             self.data_ingestion.test = test_dataset
             self.data_ingestion.message = f"{self.data_ingestion.message}\nData has been loaded from tensorflow " \
                                           f"dataset library {dataset_info} "
+            self.data_ingestion.is_dataset_present=True
             self.data_ingestion.status = True
             return self.data_ingestion
         except Exception as e:
@@ -55,6 +56,9 @@ class DataLoader:
     @log_function_signature
     def get_batch_shuffle_dataset(self):
         try:
+            if self.data_ingestion.is_dataset_present is None:
+                logging.info("Dataset is available hence started loading dataset.")
+                self.get_dataset()
             buffer_size = self.data_ingestion.dataset_config.buffer_size
             batch_size = self.data_ingestion.dataset_config.batch_size
             self.data_ingestion.train = self.data_ingestion.train.shuffle(buffer_size).batch(batch_size).prefetch(

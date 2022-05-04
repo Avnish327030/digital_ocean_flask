@@ -1,5 +1,3 @@
-from select import select
-import yaml
 import os, sys
 from app_exception.exception import AppException
 from app_utils.util import read_yaml_file
@@ -9,7 +7,6 @@ from app_entity.config_entity import DatasetConfig, PreprocessingConfig, Trainin
 from app_entity.config_entity import ModelTrainingConfig
 
 # Initializing the default values for app configuration
-
 ROOT_DIR = os.getcwd()
 CONFIG_FILE_NAME = "config.yaml"
 CONFIG_FILE_PATH = os.path.join(ROOT_DIR, CONFIG_FILE_NAME)
@@ -42,6 +39,10 @@ TRAINING_MODEL_VALIDATION_STEP_KEY = "validation_step"
 # Training pipeline config
 TRAINING_PIPELINE_KEY = "training_pipeline_config"
 ARTIFACT_DIR_KEY = "artifact_dir"
+TRAINING_PIPELINE_OBJ_DIR_KEY = "training_pipeline_obj_dir"
+TRAINING_PIPELINE_OBJ_FILE_NAME_KAY = "training_pipeline_obj_file_name"
+TRAINING_PIPELINE_EXECUTION_REPORT_DIR_KEY = "execution_report_dir"
+TRAINING_PIPELINE_EXECUTION_REPORT_FILE_NAME_KEY = "execution_report_file_name"
 
 
 class AppConfiguration:
@@ -50,7 +51,7 @@ class AppConfiguration:
     """
 
     @log_function_signature
-    def __init__(self):
+    def __init__(self, ):
         try:
 
             logging.info("Reading the configuration file.")
@@ -80,22 +81,22 @@ class AppConfiguration:
             preprocessing_config = self.config_info[PREPROCESSING_KEY]
             logging.info(f"Preprocessing configuration :\n{preprocessing_config}\n read successfully.")
             response = PreprocessingConfig(vocal_size=preprocessing_config[VOCAB_SIZE_KEY])
-            logging.info(f"Preprocessing config: {preprocessing_config}")
+            logging.info(f"Preprocessing config: {response}")
             return response
         except Exception as e:
             raise AppException(e, sys) from e
 
     @log_function_signature
-    def get_model_training_config(self) -> ModelTrainingConfig:
+    def get_model_training_config(self, experiment_id) -> ModelTrainingConfig:
         try:
-            training_pipeline_config = self.get_training_pipeline_config()
+            training_pipeline_config = self.get_training_pipeline_config(experiment_id=experiment_id)
             artifact_dir = training_pipeline_config.artifact_dir
             training_config = self.config_info[TRAINING_CONFIG_KEY]
             model_root_dir = os.path.join(artifact_dir, training_config[TRAINING_MODEL_ROOT_DIR_KEY])
             model_save_dir = os.path.join(model_root_dir, training_config[TRAINING_MODEL_SAVE_DIR_KEY])
             model_checkpoint_dir = os.path.join(model_root_dir, training_config[TRAINING_MODEL_CHECKPOINT_DIR_KEY])
             base_accuracy = training_config[TRAINING_MODEL_BASE_ACCURACY_KEY]
-            tensorboard_log_dir = training_config[TRAINING_MODEL_TENSORBOARD_LOG_DIR_KEY]
+            tensorboard_log_dir = os.path.join(model_root_dir, training_config[TRAINING_MODEL_TENSORBOARD_LOG_DIR_KEY])
             epoch = training_config[TRAINING_MODEL_EPOCH_KEY]
             validation_step = training_config[TRAINING_MODEL_VALIDATION_STEP_KEY]
 
@@ -125,7 +126,32 @@ class AppConfiguration:
             logging.info(f"Preprocessing configuration :\n{training_pipeline_config}\n read successfully.")
             artifact_dir = os.path.join(ROOT_DIR, training_pipeline_config[ARTIFACT_DIR_KEY], experiment_id)
             logging.info(f"Training pipeline artifact dir: {artifact_dir}")
-            response = TrainingPipelineConfig(artifact_dir=artifact_dir)
+
+            training_pipeline_obj_dir = os.path.join(artifact_dir,
+                                                     training_pipeline_config[TRAINING_PIPELINE_OBJ_DIR_KEY])
+
+            execution_report_dir = os.path.join(training_pipeline_config[TRAINING_PIPELINE_EXECUTION_REPORT_DIR_KEY])
+
+            dir_to_create = [artifact_dir, training_pipeline_obj_dir, execution_report_dir]
+            for dir_name in dir_to_create:
+                os.makedirs(dir_name, exist_ok=True)
+
+            execution_report_file_name = training_pipeline_config[TRAINING_PIPELINE_EXECUTION_REPORT_FILE_NAME_KEY]
+
+            execution_report_file_path = os.path.join(ROOT_DIR, execution_report_dir, execution_report_file_name)
+
+            training_pipeline_obj_file_name = training_pipeline_config[TRAINING_PIPELINE_OBJ_FILE_NAME_KAY]
+            training_pipeline_obj_file_path = os.path.join(training_pipeline_obj_dir,
+                                                           training_pipeline_obj_file_name)
+
+            response = TrainingPipelineConfig(artifact_dir=artifact_dir,
+                                              training_pipeline_obj_dir=training_pipeline_obj_dir,
+                                              training_pipeline_obj_file_name=training_pipeline_obj_file_name,
+                                              training_pipeline_obj_file_path=training_pipeline_obj_file_path,
+                                              execution_report_dir=execution_report_dir,
+                                              execution_report_file_name=execution_report_file_name,
+                                              execution_report_file_path=execution_report_file_path
+                                              )
             logging.info(f"Training pipeline config: {response}")
             return response
         except Exception as e:
