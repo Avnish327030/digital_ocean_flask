@@ -11,8 +11,8 @@ parent_func_name = []
 LOG_DIR = "logs"
 CURRENT_TIME_STAMP = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}"
 
-experiment_id = "50a23d86-000b-4f7f-82d3-4d7044ed6e36"
-#experiment_id = str(uuid.uuid4())
+# experiment_id = "50a23d86-000b-4f7f-82d3-4d7044ed6e36"
+experiment_id = str(uuid.uuid4())
 EXPERIMENT_ID = experiment_id
 
 file_name = f"log_{EXPERIMENT_ID}.log"

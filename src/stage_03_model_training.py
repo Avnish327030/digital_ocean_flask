@@ -9,27 +9,7 @@ import sys
 from app_entity.entity import TrainedModelEntity
 from app_entity.config_entity import ModelTrainingConfig
 from app_entity.entity import MetricInfoEntity
-
-KERAS_METADATA = "keras_metadata.pb"
-SAVED_MODEL = "saved_model.pb"
-CHECKPOINT_FILE_LIST = [KERAS_METADATA, SAVED_MODEL]
-FILE_COUNT = 2
-
-
-def is_model_present(model_dir):
-    try:
-        is_count = 0
-        files = os.listdir(model_dir)
-        for file_name in files:
-            if file_name in CHECKPOINT_FILE_LIST:
-                is_count += 1
-        if is_count >= 2:
-            return True
-        else:
-            return False
-    except Exception as e:
-        raise AppException(e, sys) from e
-
+from app_utils.util import is_model_present
 
 class ModelTrainer:
 

@@ -3,8 +3,8 @@ from app_exception.exception import AppException
 from app_utils.util import read_yaml_file
 from collections import namedtuple
 from app_logger import logging, log_function_signature
-from app_entity.config_entity import DatasetConfig, PreprocessingConfig, TrainingPipelineConfig
-from app_entity.config_entity import ModelTrainingConfig
+from app_entity.config_entity import DatasetConfig, PreprocessingConfig, TrainingPipelineConfig, ModelEvaluationConfig
+from app_entity.config_entity import ModelTrainingConfig, ModelDeploymentConfig
 
 # Initializing the default values for app configuration
 ROOT_DIR = os.getcwd()
@@ -43,6 +43,14 @@ TRAINING_PIPELINE_OBJ_DIR_KEY = "training_pipeline_obj_dir"
 TRAINING_PIPELINE_OBJ_FILE_NAME_KAY = "training_pipeline_obj_file_name"
 TRAINING_PIPELINE_EXECUTION_REPORT_DIR_KEY = "execution_report_dir"
 TRAINING_PIPELINE_EXECUTION_REPORT_FILE_NAME_KEY = "execution_report_file_name"
+
+# Model evaluation config
+MODEL_EVALUATION_KEY = "model_eval_config"
+MODEL_EVALUATION_CHANGE_THRESHOLD_CONFIG_KEY = "change_threshold"
+
+# Model deployment config
+MODEL_DEPLOYMENT_KEY = "model_deployment"
+MODEL_DEPLOYMENT_SERVING_DIR_KEY = "model_serving_dir"
 
 
 class AppConfiguration:
@@ -153,6 +161,31 @@ class AppConfiguration:
                                               execution_report_file_path=execution_report_file_path
                                               )
             logging.info(f"Training pipeline config: {response}")
+            return response
+        except Exception as e:
+            raise AppException(e, sys) from e
+
+    @log_function_signature
+    def get_model_evaluation_config(self) -> ModelEvaluationConfig:
+        try:
+            model_eval_config = self.config_info[MODEL_EVALUATION_KEY]
+            response = ModelEvaluationConfig(
+                change_threshold=model_eval_config[MODEL_EVALUATION_CHANGE_THRESHOLD_CONFIG_KEY])
+            logging.info(f"Model evaluation config: {response}")
+            return response
+        except Exception as e:
+            raise AppException(e, sys) from e
+
+    @log_function_signature
+    def get_model_deployment_config(self) -> ModelDeploymentConfig:
+        try:
+
+            model_deployment_config = self.config_info[MODEL_DEPLOYMENT_KEY]
+            serving_dir = os.path.join(ROOT_DIR, model_deployment_config[MODEL_DEPLOYMENT_SERVING_DIR_KEY])
+            os.makedirs(serving_dir, exist_ok=True)
+            response = ModelDeploymentConfig(
+                model_serving_dir=serving_dir)
+            logging.info(f"Model evaluation config: {response}")
             return response
         except Exception as e:
             raise AppException(e, sys) from e

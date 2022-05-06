@@ -1,8 +1,12 @@
 from collections import namedtuple
+from app_configuration.configuration import AppConfiguration
 from app_entity.config_entity import DatasetConfig
-from app_entity.config_entity import PreprocessingConfig, ModelTrainingConfig, TrainingPipelineConfig
-
+from app_entity.config_entity import PreprocessingConfig, ModelEvaluationConfig, ModelTrainingConfig, \
+    TrainingPipelineConfig, ModelDeploymentConfig
+import sys, os
 from datetime import datetime
+
+from app_exception.exception import AppException
 
 
 class ExperimentEntity:
@@ -46,19 +50,9 @@ class DataIngestionEntity:
 
 class DataPreprocessingEntity:
     def __init__(self, experiment_id, preprocessing_config: PreprocessingConfig):
-        self.experiment_id = experiment_id,
+        self.experiment_id = experiment_id
         self.encoder = None
         self.preprocessing_config = preprocessing_config
-        self.status = None
-        self.message = ""
-
-
-class BestModelEntity:
-
-    def __init__(self, ):
-        self.best_model = None
-        self.model_path = None
-        self.is_best_model_exist = None
         self.status = None
         self.message = ""
 
@@ -71,10 +65,45 @@ class MetricInfoEntity:
                  test_accuracy: float = None,
                  test_loss: float = None
                  ):
+        """"
+        train_accuracy: float = None,
+        train_loss: float = None,
+        test_accuracy: float = None,
+        test_loss: float = None
+
+        """
         self.train_accuracy = train_accuracy
         self.train_loss = train_loss
         self.test_accuracy = test_accuracy
         self.test_loss = test_loss
+
+    def __repr__(self):
+        return f"{MetricInfoEntity.__name__}(train_accuracy={self.train_accuracy}," \
+               f"train_loss={self.train_accuracy}," \
+               f"test_accuracy={self.test_accuracy}," \
+               f"test_loss={self.test_loss})"
+
+    def __str__(self):
+        return f"{MetricInfoEntity.__name__}(train_accuracy={self.train_accuracy}," \
+               f"train_loss={self.train_accuracy}," \
+               f"test_accuracy={self.test_accuracy}," \
+               f"test_loss={self.test_loss})"
+
+
+class BestModelEntity:
+
+    def __init__(self, best_model=None, model_path=None, is_best_model_exists=False,
+                 metric_info: MetricInfoEntity = None):
+        """
+        best_model = Tensorflow model obj
+        model_path = path of model
+        is_best_model_exists: By default False value will be updated to true if path exists
+
+        """
+        self.best_model = best_model
+        self.model_path = model_path
+        self.is_best_model_exist = is_best_model_exists
+        self.metric_info = metric_info
 
 
 class TrainedModelEntity:
@@ -91,21 +120,52 @@ class TrainedModelEntity:
         self.history = None
 
 
-DataValidationEntity = namedtuple("DataValidationEntity", ["experiment_id", "name"])
+DataValidationEntity = namedtuple(
+    "DataValidationEntity", ["experiment_id", "name"])
 
 
 class ModelEvaluationEntity:
-    def __init__(self, experiment_id, trained_model: TrainedModelEntity, best_model: BestModelEntity):
+    def __init__(self,
+                 experiment_id,
+                 model_eval_config: ModelEvaluationConfig,
+                 trained_model: TrainedModelEntity,
+                 ):
+        """
+        params:
+        ========================================
+        experiment_id: Provide experiment id
+        model_eval_config : Model Evaluation configuration object
+        trained_model: Trained Model Entity Object
+        ===========================================
+        Attribute of class
         self.experiment_id = experiment_id
         self.trained_model = trained_model
-        self.best_model = best_model
+        self.best_model = BestModelEntity()
         self.is_trained_model_accepted = False
         self.status = None
         self.message = ""
+        """
+        self.model_eval_config = model_eval_config
+        self.experiment_id = experiment_id
+        self.trained_model = trained_model
+        self.best_model_obj = BestModelEntity()
+        self.is_trained_model_accepted = False
+        self.best_model_path = None
+        self.status = None
+        self.improved_factor = None
+        self.message = ""
 
 
-class ExportModelEntity:
-    def __init__(self, experiment_id, accepted_model: TrainedModelEntity, export_dir: str):
+class ModelDeploymentEntity:
+    def __init__(self, experiment_id,
+                 model_deployment_config: ModelDeploymentConfig,
+                 accepted_model: TrainedModelEntity, export_dir: str = None):
+        """
+        experiment_id: Experiment id
+        accepted_model: TrainedModelEntity Object of Trained model Entity
+        export_dir: export location of model
+        """
+        self.model_deployment_config = model_deployment_config
         self.experiment_id = experiment_id
         self.accepted_model = accepted_model
         self.export_dir = export_dir
@@ -118,7 +178,9 @@ class TrainingPipelineEntity:
                  data_ingestion: DataIngestionEntity = None,
                  data_preprocessing: DataPreprocessingEntity = None,
                  model_trainer: TrainedModelEntity = None,
-                 training_pipeline_config: TrainingPipelineConfig = None
+                 model_evaluator: ModelEvaluationEntity = None,
+                 model_deployment: ModelDeploymentEntity = None,
+                 training_pipeline_config: TrainingPipelineConfig = None,
                  ):
         self.model_trainer = model_trainer
         self.status = None
@@ -126,3 +188,5 @@ class TrainingPipelineEntity:
         self.training_pipeline_config = training_pipeline_config
         self.data_ingestion = data_ingestion
         self.data_preprocessing = data_preprocessing
+        self.model_evaluator = model_evaluator
+        self.model_deployment = model_deployment

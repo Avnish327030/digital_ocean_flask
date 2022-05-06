@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 
-
 REQUIREMENT_FILE_NAME = "requirements.txt"
 REMOVE_PACKAGE = "-e ."
 
@@ -23,5 +22,5 @@ setup(
     description="Project has been completed.",
     author="Avnish Yadav",
     packages=find_packages(),
-    install_requires= get_requirement_list()
+    install_requires=get_requirement_list()
 )

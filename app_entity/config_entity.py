@@ -23,5 +23,6 @@ TrainingPipelineConfig = namedtuple("TrainingPipelineConfig", ["artifact_dir",
                                                                "execution_report_file_path"
                                                                ])
 
+ModelEvaluationConfig = namedtuple("ModelEvaluationConfig", ["change_threshold", ])
 
-
+ModelDeploymentConfig = namedtuple("ModelDeploymentConfig", ["model_serving_dir"])

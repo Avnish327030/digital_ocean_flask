@@ -13,3 +13,6 @@ Enter the following command in Run Command
 ```
 gunicorn --worker-tmp-dir /dev/shm app:app
 ```
+
+To generate class diagram
+pyreverse -o png -p componentplain app_entity/

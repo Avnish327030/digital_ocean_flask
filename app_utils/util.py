@@ -6,8 +6,27 @@ import json
 from copy import deepcopy
 
 
+KERAS_METADATA = "keras_metadata.pb"
+SAVED_MODEL = "saved_model.pb"
+CHECKPOINT_FILE_LIST = [KERAS_METADATA, SAVED_MODEL]
+FILE_COUNT = 2
+
+
+
 @log_function_signature
 def read_json_file(file_path: str) -> dict:
+    """
+    created date: 2022-05-01
+    created by: avnish@ineuron.ai
+    organization: iNeuron Intelligence Private Limited
+    ==================================================
+    file_path: path of the json file
+    Reads the json file and returns the dictionary
+    example:
+    {
+        "key": "value"
+    }
+    """
     try:
         response = dict()
         if os.path.exists(file_path):
@@ -25,6 +44,14 @@ def read_json_file(file_path: str) -> dict:
 
 @log_function_signature
 def write_json_file(obj: dict, file_path: str):
+    """
+    created date: 2022-05-01
+    created by: avnish@ineuron.ai
+    organization: iNeuron Intelligence Private Limited
+    ==================================================
+    file_path: path of the json file
+    Write Json file
+    """
     try:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         response = dict()
@@ -53,5 +80,22 @@ def read_yaml_file(yaml_file_path: str) -> dict:
             config_dict = yaml.safe_load(config_file)
             logging.info("Configuration file read successfully")
             return config_dict
+    except Exception as e:
+        raise AppException(e, sys) from e
+
+
+
+@log_function_signature
+def is_model_present(model_dir):
+    try:
+        is_count = 0
+        files = os.listdir(model_dir)
+        for file_name in files:
+            if file_name in CHECKPOINT_FILE_LIST:
+                is_count += 1
+        if is_count >= 2:
+            return True
+        else:
+            return False
     except Exception as e:
         raise AppException(e, sys) from e
